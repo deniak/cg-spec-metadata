@@ -6,10 +6,12 @@ export async function collectGithubMetadata(spec) {
     const GITHUB_API_REPO_URL = `https://api.github.com/repos/${spec.repo}`;
     const OPEN_PR_URL = `https://api.github.com/search/issues?q=repo:${spec.repo}+type:pr+state:open`;
     const CLOSED_PR_URL = `https://api.github.com/search/issues?q=repo:${spec.repo}+type:pr+state:closed`;
+    const COMMITS_URL = `${GITHUB_API_REPO_URL}/commits?per_page=1`;
 
     const repo = await axios.get(GITHUB_API_REPO_URL);
     const openPRs = await axios.get(OPEN_PR_URL);
     const closedPRs = await axios.get(CLOSED_PR_URL);
+    const commits = await axios.get(COMMITS_URL);
 
     return {
       stars: repo.data.stargazers_count,
