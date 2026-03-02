@@ -1,20 +1,30 @@
-import axios from "axios";
-
 const MOZILLA_JSON_URL =
   "https://mozilla.github.io/standards-positions/merged-data.json";
 
 let cache = null;
 
-export async function collectMozillaPosition(spec) {
+async function fetchMozillaPositions() {
   if (!cache) {
-    const { data } = await axios.get(MOZILLA_JSON_URL);
-    cache = data;
-  }
+    const res = await fetch(MOZILLA_JSON_URL);
+    if (!res.ok) {
+      throw new Error(`Failed to fetch Mozilla positions: HTTP ${res.status}`);
+    }
 
-  const entry = Object.entries(cache).find(([k, v]) => v.url === spec.url);
+    cache = await res.json();
+  }
+  return cache;
+}
+
+export async function collectMozillaPosition(spec) {
+  try {
+    await fetchMozillaPositions();
+    const entry = Object.entries(cache).find(([k, v]) => v.url === spec.url);
 
   return {
     issue: entry ? `https://github.com/mozilla/standards-positions/issues/${entry[0]}` : "N/A",
     position: entry ? entry[1].position : "no-signal"
   };
+  } catch (error) {
+    return { error: error.message };
+  }
 }

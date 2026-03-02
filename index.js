@@ -17,14 +17,14 @@ async function run() {
     const metadata = {
       shortname: spec.shortname,
       specUrl: spec.specUrl,
-      feature: spec.subspec
+      feature: spec.feature
     };
 
-    // metadata.github = await collectGithubMetadata(spec);
-    // metadata.mozilla = await collectMozillaPosition(spec);
-    // metadata.webkit = await collectWebkitPosition(spec);
-    // metadata.chromium = await collectChromiumPosition(spec);
-    // metadata.web_features = await collectWF(spec);
+    metadata.github = await collectGithubMetadata(spec);
+    metadata.mozilla = await collectMozillaPosition(spec);
+    metadata.webkit = await collectWebkitPosition(spec);
+    metadata.chromium = await collectChromiumPosition(spec);
+    metadata.web_features = await collectWF(spec);
     metadata.wpt = await collectWPTFyi(spec);
 
     results.push(metadata);

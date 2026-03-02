@@ -1,12 +1,17 @@
-import axios from "axios";
-
 const CHROME_STATUS_URL = "https://chromestatus.com/api/v0/features";
 
 export async function collectChromiumPosition(spec) {
   try {
-    const response = await axios.get(`${CHROME_STATUS_URL}?q=${encodeURIComponent(spec.shortname)}`);
+    const res = await fetch(`${CHROME_STATUS_URL}?q=${encodeURIComponent(spec.shortname)}`);
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch Chromium positions: HTTP ${res.status}`);
+    }
+
+    const body = await res.text();
+
     // remove XSSI prefix and parse JSON
-    const data = JSON.parse(response.data.substring(response.data.indexOf('\n') + 1));
+    const data = JSON.parse(body.substring(body.indexOf('\n') + 1));
 
     const match = data.features.find(f =>
       f.web_feature.toLowerCase() === spec.shortname

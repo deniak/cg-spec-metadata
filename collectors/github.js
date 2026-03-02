@@ -1,5 +1,3 @@
-import axios from "axios";
-
 export async function collectGithubMetadata(spec) {
   if (!spec.repo) return null;
   try {
@@ -8,18 +6,22 @@ export async function collectGithubMetadata(spec) {
     const CLOSED_PR_URL = `https://api.github.com/search/issues?q=repo:${spec.repo}+type:pr+state:closed`;
     const COMMITS_URL = `${GITHUB_API_REPO_URL}/commits?per_page=1`;
 
-    const repo = await axios.get(GITHUB_API_REPO_URL);
-    const openPRs = await axios.get(OPEN_PR_URL);
-    const closedPRs = await axios.get(CLOSED_PR_URL);
-    const commits = await axios.get(COMMITS_URL);
+    const repoRes = await fetch(GITHUB_API_REPO_URL);
+    const repo = await repoRes.json();
+    const openPRsRes = await fetch(OPEN_PR_URL);
+    const openPRs = await openPRsRes.json();
+    const closedPRsRes = await fetch(CLOSED_PR_URL);
+    const closedPRs = await closedPRsRes.json();
+    const commitsRes = await fetch(COMMITS_URL);
+    const commits = await commitsRes.json();
 
     return {
-      stars: repo.data.stargazers_count,
-      forks: repo.data.forks_count,
-      openIssues: repo.data.open_issues_count,
-      openPRs: openPRs.data?.total_count ?? 0,
-      closedPRs: closedPRs.data?.total_count ?? 0,
-      lastCommitDate: commits.data[0]?.commit?.committer?.date || null
+      stars: repo.stargazers_count,
+      forks: repo.forks_count,
+      openIssues: repo.open_issues_count,
+      openPRs: openPRs.total_count ?? 0,
+      closedPRs: closedPRs.total_count ?? 0,
+      lastCommitDate: commits[0]?.commit?.committer?.date || null
     };
   } catch (e) {
     return { error: e.message };

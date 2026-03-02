@@ -1,5 +1,3 @@
-import axios from "axios";
-
 const WEBKIT_JSON_URL =
   "https://raw.githubusercontent.com/WebKit/standards-positions/main/summary.json";
 
@@ -7,8 +5,13 @@ let cache = null;
 
 async function fetchWebkitPositions() {
   if (!cache) {
-    const { data } = await axios.get(WEBKIT_JSON_URL);
-    cache = data;
+    const res = await fetch(WEBKIT_JSON_URL);
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch WebKit positions: HTTP ${res.status}`);
+    }
+
+    cache = await res.json();
   }
   return cache;
 }
