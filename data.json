@@ -2,8 +2,8 @@
   {
     "shortname": "file-system-access",
     "github": {
-      "stars": 698,
-      "forks": 68,
+      "stars": 701,
+      "forks": 70,
       "openIssues": 87,
       "openPRs": 7,
       "closedPRs": 135,
@@ -42,6 +42,7 @@
             "val": 2,
             "milestone_str": "Proposed"
           },
+          "announced": false,
           "desktop": null,
           "android": null,
           "webview": null,
@@ -422,15 +423,123 @@
           }
         ],
         "chrome-use-counters": {
-          "percentageOfPageLoad": 0.00004845,
+          "percentageOfPageLoad": 0.00004396,
           "url": "https://chromestatus.com/metrics/webfeature/timeline/popularity/258"
+        },
+        "chrome-status": [
+          {
+            "id": 5324970347200512,
+            "name": "FileSystemAccess: add \"write\" access mode",
+            "summary": "The File System Access API defines two access modes for file system entries: \"read\" and \"readwrite\". These modes are used when querying or requesting permission to an entry.\n\nAn issue with the current model is that operations requiring only file system modification, such as FileSystemHandle.remove(), are forced to request broad \"readwrite\" permission. This behavior poses some unnecessary security risks.\n\nTo address this, we propose a more granular, \"write\" permission mode. This new mode will allow applications to request only the permission to write to a file or directory, without also gaining permission to read from it.",
+            "motivation": "The File System Access API defines two access modes for file system entries: \"read\" and \"readwrite\". These modes are used when querying or requesting permission to an entry.\n\nAn issue with the current model is that operations requiring only file system modification, such as FileSystemHandle.remove(), are forced to request broad \"readwrite\" permission. This behavior poses some unnecessary security risks.",
+            "url": "https://chromestatus.com/feature/5324970347200512",
+            "bug-url": "https://crbug.com/40276567",
+            "spec-link": "https://github.com/WICG/file-system-access/pull/464",
+            "explainer-links": [
+              "https://github.com/WICG/file-system-access/pull/462/files"
+            ],
+            "updated": {
+              "by": "mych@chromium.org",
+              "when": "2025-07-29 08:30:40.440277"
+            }
+          },
+          {
+            "id": 6383970247770112,
+            "name": "Writable directory prompts for the File System Access API",
+            "summary": "Allow returning a directory with both read and write permissions in a single prompt for the File System Access API.\r\n\r\nCurrently showDirectoryPicker() always returns a read-only directory (after showing a read access prompt), requiring a second prompt to get write access. This double-prompt is a poor user experience and contributes to confusion and permission fatigue among users.\r\n\r\nAdds an optional \"mode\" option to DirectoryPickerOptions which can be specified as either \"read\" or \"readwrite\".",
+            "motivation": "",
+            "url": "https://chromestatus.com/feature/6383970247770112",
+            "bug-url": "https://crbug.com/1115632",
+            "spec-link": "https://github.com/WICG/file-system-access/pull/300",
+            "explainer-links": [],
+            "updated": {
+              "by": "foolip@google.com",
+              "when": "2025-08-22 10:34:20.624826"
+            }
+          },
+          {
+            "id": 6556060494069760,
+            "name": "Seeking past the end of a file in the File System Access API",
+            "summary": "Rather than rejecting when trying to write past the end of a file, require extending a file with some number of 0x00 (NUL) bytes instead.\r\n\r\nThis enables creating sparse files and greatly simplifies saving content to a file when the data to be written is received out of order.",
+            "motivation": "Without this functionality, applications which receive file contents out of order (ex: bittorrent downloads) would have to manually make sure to resize the file either ahead of time or when needed during writing.\r\n\r\nThe behavior here would have already been possible by keeping track of the file size, and inserting appropriate truncate() calls to grow the file whenever trying to write past the end of a file. Not requiring these explicit truncate calls simplifies code, and reduces the chance of bugs in websites (accidentally shrinking files when they don't need to, for example).",
+            "url": "https://chromestatus.com/feature/6556060494069760",
+            "bug-url": "https://bugs.chromium.org/p/chromium/issues/detail?id=1153385",
+            "spec-link": "https://github.com/WICG/file-system-access/pull/266/files",
+            "explainer-links": [
+              "https://github.com/WICG/file-system-access/pull/266"
+            ],
+            "updated": {
+              "by": "foolip@google.com",
+              "when": "2025-08-22 10:34:22.460025"
+            }
+          },
+          {
+            "id": 6013006146174976,
+            "name": "Suggested file name and location for the File System Access API",
+            "summary": "When initially shipping the File System Access API we shipped a bare minimum API surface\r\nfor showing file and directory pickers. We're now proposing adding a couple of frequently\r\nrequested (and commonly supported in other file picker APIs) options to let websites\r\nprovide a couple more opportunities to influence the behavior of the file and directory pickers.\r\nIn particular we want to let websites give suggestions for the name and location of files and\r\ndirectories that are being saved or loaded.",
+            "motivation": "This will let websites provide more user friendly user experiences when interacting with the File System Access API.",
+            "url": "https://chromestatus.com/feature/6013006146174976",
+            "bug-url": "https://bugs.chromium.org/p/chromium/issues/detail?id=1253174",
+            "spec-link": "https://github.com/WICG/file-system-access/pull/287",
+            "explainer-links": [
+              "https://github.com/WICG/file-system-access/blob/main/SuggestedNameAndDir.md"
+            ],
+            "updated": {
+              "by": "foolip@google.com",
+              "when": "2025-08-22 10:34:24.350118"
+            }
+          },
+          {
+            "id": 4768827940274176,
+            "name": "Limit characters allowed in extensions in File System Access API file pickers",
+            "summary": "To improve security, the File System Access API's showOpenFilePicker() and showSaveFilePicker() methods will limit what characters are allowed in extensions for accepted file types.\r\n\r\nSpecifically only A-Z, a-z, 0-9, + and . will be allowed, extensions can't end in .local or .lnk, and can't be more than 16 characters long.",
+            "motivation": "Especially in save dialogs there is danger in allowing arbitrary code\r\npoints in file extensions/suffixes. Certain suffixes have special\r\nmeaning or behavior on certain platforms. For predictibality purposes we\r\nenforce the same restrictions on all platforms.",
+            "url": "https://chromestatus.com/feature/4768827940274176",
+            "bug-url": null,
+            "spec-link": "https://github.com/WICG/file-system-access/pull/252",
+            "explainer-links": [
+              "https://github.com/WICG/file-system-access/pull/252"
+            ],
+            "updated": {
+              "by": "foolip@google.com",
+              "when": "2025-08-22 10:34:26.173283"
+            }
+          },
+          {
+            "id": 6284708426022912,
+            "name": "File System Access",
+            "summary": "This API enables developers to build powerful apps that interact with other (non-Web) apps on the user’s device via the device’s file system. After a user grants a web app access, this API allows the app to read or save changes directly to files and folders selected by the user. Beyond reading and writing files, this API provides the ability to open a directory and enumerate its contents, as well as store file and directory handles in IndexedDB to later regain access to the same content.",
+            "motivation": "Today, if a website wants to create experiences involving local files (document editor, image compressor, IDE, etc.) they are at a disadvantage to native apps. A web site must ask the user to reopen a file every time they want to edit it. After opening, the site can only save changes by re-downloading the file to the Downloads folder. A native app, by comparison, can maintain a most recently used list, re-save and even auto save, and save files anywhere the user wants.",
+            "url": "https://chromestatus.com/feature/6284708426022912",
+            "bug-url": "https://crbug.com/853326",
+            "spec-link": "https://wicg.github.io/file-system-access",
+            "explainer-links": [
+              "https://github.com/WICG/file-system-access/blob/master/EXPLAINER.md"
+            ],
+            "updated": {
+              "by": "foolip@google.com",
+              "when": "2025-08-22 08:28:29.291019"
+            }
+          }
+        ],
+        "bugs": {
+          "firefox": [
+            "https://bugzil.la/1246236"
+          ],
+          "chrome": [
+            "https://crbug.com/40276567",
+            "https://crbug.com/1115632",
+            "https://bugs.chromium.org/p/chromium/issues/detail?id=1153385",
+            "https://bugs.chromium.org/p/chromium/issues/detail?id=1253174",
+            "https://crbug.com/853326"
+          ]
         }
       }
     ],
     "wpt": {
       "hasResults": true,
       "tests": 10,
-      "subtests": 326
+      "subtests": 163
     },
     "substantiveContributionsLastYear": 1
   },
@@ -438,12 +547,12 @@
     "shortname": "speculation-rules",
     "feature": "prefetch",
     "github": {
-      "stars": 196,
+      "stars": 198,
       "forks": 42,
       "openIssues": 33,
       "openPRs": 2,
-      "closedPRs": 247,
-      "lastCommitDate": "2026-04-20T17:22:51Z"
+      "closedPRs": 248,
+      "lastCommitDate": "2026-05-14T10:42:27Z"
     },
     "mozilla": {
       "issue": "https://github.com/mozilla/standards-positions/issues/1214",
@@ -478,6 +587,7 @@
             "val": 2,
             "milestone_str": "Proposed"
           },
+          "announced": false,
           "desktop": null,
           "android": null,
           "webview": null,
@@ -822,16 +932,261 @@
         ],
         "developer-signals": {
           "url": "https://github.com/web-platform-dx/developer-signals/issues/186",
-          "votes": 16
+          "votes": 18
         },
         "chrome-use-counters": {
-          "percentageOfPageLoad": 0.11802247,
+          "percentageOfPageLoad": 0.11820317,
           "url": "https://chromestatus.com/metrics/webfeature/timeline/popularity/317"
         },
+        "chrome-status": [
+          {
+            "id": 5074313831120896,
+            "name": "Speculation rules: form_submission field",
+            "summary": "This extends speculation rules syntax to allow developers to specify the form_submission field for prerender.\n\nThis field directs the browser to prepare the prerender as a form submission, so that it can be activated by real form submission navigations. Examples include a simple search form which results in a /search?q=XXX GET request navigation, support of which has been requested by web developers.",
+            "motivation": "Form submissions cannot activate prerendered pages currently by design, due to internal browser limitations. In at least Chrome, ordinary form submission navigations have special state and run extra checks that ordinary prerenders don't experience. This means that a form submission can never activate a prerender, because the prerender was not prepared properly as a form submission. In addition to the internal browser limitations, resources can be wasted on prerendering a page which is not eligible, such as CSP disallowing form-action.",
+            "url": "https://chromestatus.com/feature/5074313831120896",
+            "bug-url": "https://issues.chromium.org/issues/346555939",
+            "spec-link": "https://storage.googleapis.com/spec-previews/WICG/nav-speculation/pull/426/diff/prerendering.html",
+            "explainer-links": [
+              "https://github.com/WICG/nav-speculation/blob/main/prerendering-form-submission.md"
+            ],
+            "updated": {
+              "by": "robertlin@chromium.org",
+              "when": "2026-05-07 05:13:21.129350"
+            }
+          },
+          {
+            "id": 4868908869877760,
+            "name": "External <script type=speculationrules>",
+            "summary": "Allows a speculation rules script element to have a src pointing to a\nfile of speculation rules, enabling developers to easily reuse a set of\nspeculation rules across HTML documents.",
+            "motivation": "Allows developers to easily reuse speculation rules across documents by providing the src in the HTML script element of type \"speculationrules\". Developers expect this functionality to be supported and currently have to use a classic external script to inject the speculation rules as a workaround. \n\nhttps://github.com/WICG/nav-speculation/issues/348",
+            "url": "https://chromestatus.com/feature/4868908869877760",
+            "bug-url": "https://issues.chromium.org/issues/40170951",
+            "spec-link": "https://github.com/whatwg/html/pull/11697",
+            "explainer-links": [],
+            "updated": {
+              "by": "vizlatin@microsoft.com",
+              "when": "2026-02-02 21:46:06.200663"
+            }
+          },
+          {
+            "id": 5087319398940672,
+            "name": "Speculation Rules: Referrer-provided prefetch proxies",
+            "summary": "This feature extends speculation rules with a new requirement that allows sites to set a referrer-provided prefetch proxy for their documents' cross-origin prefetches. This allows sites to speed up cross-origin/site navigations using a proxy of their choice.",
+            "motivation": "The Speculative Loading spec asks browsers to provide IP-anonymizing proxies to satisfy the \"anonymous-client-ip-when-cross-origin\" requirement for speculation rules.\n\nPrivacy concerns limit the use of browser-provided prefetch proxies. Only sites that are 1P to the browser and prefetch proxy can straightforwardly use the requirement above. For 3P sites, the proxy is only usable when the user has opted-in to an additional privacy setting.\n\nIn the referrer-provided prefetch proxy architecture, the website initiating the prefetch operates its own privacy-preserving proxy server and specifies it in the page’s speculation rules script. This aligns the proxy trust model, avoids introducing a third-party service, and shifts the operational cost to the party that directly benefits from faster navigation.",
+            "url": "https://chromestatus.com/feature/5087319398940672",
+            "bug-url": "https://g-issues.chromium.org/issues/510022186",
+            "spec-link": null,
+            "explainer-links": [
+              "https://github.com/WICG/nav-speculation/blob/main/referrer_provided_prefetch_proxies_draft.md"
+            ],
+            "updated": {
+              "by": "elburrito@google.com",
+              "when": "2026-05-05 21:45:47.512061"
+            }
+          },
+          {
+            "id": 6324676351623168,
+            "name": "Speculation Rules: prerender-until-script Action",
+            "summary": "This extends speculation rules to introduce a new action called prerender_until_script. \n\nIt is designed as an intermediate option between the existing prefetch (which only fetches the main document) and prerender (which fully renders the page and runs all scripts). This new action will fetch and parse a page, discover and download its subresources like images and stylesheets, but will pause all script execution. When the user navigates to the page, it activates, and all the deferred scripts are then executed in order. \n\nThis allows for a near-instant page load for content-heavy sites without the performance cost or side effects of running analytics or third-party scripts prematurely.",
+            "motivation": "The Speculation Rules API provides developers with powerful tools for speeding up navigations, including prefetch for fetching a document and prerender for fully rendering it.\n\nThe prerender_until_script action complements these existing options by providing a new intermediate choice. It is designed for developers who want to achieve significant performance gains by loading a page and its critical subresources, while also deferring all script execution until the page is actively visited.\n\nThis action instructs the browser to parse the document and fetch key subresources (e.g., stylesheets, images) discovered by the preload scanner. By stopping before script execution, it offers a low-cost way to prepare the page for a near-instant load, giving developers more granular control over the performance-versus-resource-use tradeoff.",
+            "url": "https://chromestatus.com/feature/6324676351623168",
+            "bug-url": "https://issues.chromium.org/u/1/issues/428500219",
+            "spec-link": "https://wicg.github.io/nav-speculation/prerendering.html#speculation-rule-set-prerender_until_script-rules",
+            "explainer-links": [
+              "https://github.com/WICG/nav-speculation/blob/main/prerender-until-script.md"
+            ],
+            "updated": {
+              "by": "lingqi@chromium.org",
+              "when": "2026-02-25 02:31:40.724368"
+            }
+          },
+          {
+            "id": 5113430155591680,
+            "name": "Speculation rules: desktop \"eager\" eagerness improvements",
+            "summary": "On desktop, \"eager\" eagerness speculation rules prefetches and prerenders now trigger when users hover on a link for a shorter time than the \"moderate\" mouse hover time.\r\n\r\nThe previous behavior, of starting prefetch/prerenders as soon as possible, was the same as \"immediate\" eagerness. This new behavior is more useful as it better reflects the author's intent to be more eager than the \"moderate\" and less eager than \"immediate\".\r\n\r\nMore detail on this and other upcoming improvements to speculation rules eagerness are available at https://docs.google.com/document/d/1YPbtUPfZIDElzBZNx8IQMzRFvy8oauLG_i1XIr6jgTs/edit?usp=sharing.",
+            "motivation": null,
+            "url": "https://chromestatus.com/feature/5113430155591680",
+            "bug-url": "https://crbug.com/40287486",
+            "spec-link": "https://wicg.github.io/nav-speculation/speculation-rules.html#:~:text=early%20as%20possible.-,%22moderate%22,balance%20between%20%22eager%22%20and%20%22conservative%22.,-%22conservative%22",
+            "explainer-links": [],
+            "updated": {
+              "by": "tnak@chromium.org",
+              "when": "2025-10-21 09:03:07.000565"
+            }
+          },
+          {
+            "id": 5079361929347072,
+            "name": "Speculation rules: mobile \"moderate\" eagerness improvements",
+            "summary": "On mobile, \"moderate\" eagerness speculation rules prefetches and prerenders now trigger when a link enters the viewport and passes other conditions that indicate that it's more likely to be clicked.\r\n\r\nThe previous behavior, of waiting until pointerdown, was the same as \"conservative\" eagerness. This new behavior is more useful as it better reflects author intent to be more eager than the \"conservative\" setting.\r\n\r\nMore detail on this and other upcoming improvements to speculation rules eagerness are available at https://docs.google.com/document/d/1YPbtUPfZIDElzBZNx8IQMzRFvy8oauLG_i1XIr6jgTs/edit?usp=sharing.",
+            "motivation": null,
+            "url": "https://chromestatus.com/feature/5079361929347072",
+            "bug-url": "https://issues.chromium.org/issues/372053392",
+            "spec-link": "https://wicg.github.io/nav-speculation/speculation-rules.html#:~:text=early%20as%20possible.-,%22moderate%22,balance%20between%20%22eager%22%20and%20%22conservative%22.,-%22conservative%22",
+            "explainer-links": [],
+            "updated": {
+              "by": "foolip@google.com",
+              "when": "2025-08-22 08:32:15.019034"
+            }
+          },
+          {
+            "id": 6503137340555264,
+            "name": "Speculation rules: tag field",
+            "summary": "This enables developers to add tag field to speculation rules. This optional field can be used to track the source of speculation rules, e.g. to treat them differently at an intermediary server. Any tags associated with a speculation will be sent with the Sec-Speculation-Tags header.",
+            "motivation": "There may be multiple parties on a single referring page which are setting up speculation rules, e.g. CDNs, frameworks, or individual pages. It can be useful for server code to respond differently to speculative navigation requests, depending on which source triggered them.\n\nToday, there is no way for servers to perform this kind of differentiation. All speculative navigation requests appear the same to the server. This feature provides such a mechanism.",
+            "url": "https://chromestatus.com/feature/6503137340555264",
+            "bug-url": "https://issues.chromium.org/issues/381687257",
+            "spec-link": "https://wicg.github.io/nav-speculation/speculation-rules.html",
+            "explainer-links": [
+              "https://github.com/WICG/nav-speculation/blob/main/speculation-rules-tags.md"
+            ],
+            "updated": {
+              "by": "foolip@google.com",
+              "when": "2025-08-22 08:32:18.334821"
+            }
+          },
+          {
+            "id": 5123809745829888,
+            "name": "Exempt Speculation-Rules Header from CSP restrictions",
+            "summary": "This is somewhat of a bug-fix, but it's a web-exposed bug fix which deserves full web platform security review, so we're using the Intent to Ship process.\r\nWhen we initially shipped the Speculation-Rules header, we reused much of the architecture from the <script type=speculationrules> implementation, and thus it was blocked by CSP policies that blocked <script> elements. \r\nThis has caused some friction among web developers adopting the Speculation-Rules header, who expected CSP to only apply to <script>s. After consulting with Google and Chrome security teams, we realized our initial implementation was a mistake, as CSP's script policies are meant to protect against injection of scripts into HTML, and the CSP threat model doesn't relate to HTTP headers. \r\nAs such, we're updating the integration between speculation rules and CSP so that CSP only applies to <script type=speculationrules>, and not to the Speculation-Rules header.",
+            "motivation": "When we initially shipped the Speculation-Rules header, we reused much of the architecture from the <script type=speculationrules> implementation, and thus it was blocked by CSP policies that blocked <script> elements. This has caused some friction among web developers adopting the Speculation-Rules header, who expected CSP to only apply to <script>s. After consulting with Google and Chrome security teams, we realized our initial implementation was a mistake, as CSP's script policies are meant to protect against injection of scripts into HTML, and the CSP threat model doesn't relate to HTTP headers.",
+            "url": "https://chromestatus.com/feature/5123809745829888",
+            "bug-url": null,
+            "spec-link": "https://wicg.github.io/nav-speculation/speculation-rules.html#security-xss",
+            "explainer-links": [
+              "https://wicg.github.io/nav-speculation/speculation-rules.html#security-xss"
+            ],
+            "updated": {
+              "by": "foolip@google.com",
+              "when": "2025-08-22 08:32:19.891178"
+            }
+          },
+          {
+            "id": 5088362954489856,
+            "name": "Speculation rules: infer \"source\" if possible",
+            "summary": "This allows speculation rules to be written more concisely if the type of the rule is not ambiguous (i.e., most cases). For example:\n\n{\"source\":\"list\",\"urls\":[\"https://example.com/\"]}\ncan be written\n{\"urls\":[\"https://example.com/\"]}\n\nand\n\n{\"source\":\"document\",\"where\":{\"selector_matches\":\"#nav > a\"}}\ncan be written\n{\"where\":{\"selector_matches\":\"#nav > a\"}}\n\nExisting rules (with explicit \"source\") continue to work with no change.\n\nSee https://github.com/WICG/nav-speculation/pull/295.",
+            "motivation": "This makes writing rules more concise in cases where it's not ambiguous. We want to make this short, simple and easy.",
+            "url": "https://chromestatus.com/feature/5088362954489856",
+            "bug-url": "https://bugs.chromium.org/p/chromium/issues/detail?id=1517696",
+            "spec-link": "https://wicg.github.io/nav-speculation/speculation-rules.html#parse-a-speculation-rule",
+            "explainer-links": [],
+            "updated": {
+              "by": "foolip@google.com",
+              "when": "2025-08-22 08:32:22.996404"
+            }
+          },
+          {
+            "id": 5162540351094784,
+            "name": "Speculation rules: target_hint field",
+            "summary": "This extends speculation rules syntax to allow developers to specify the target_hint field.\n\nThis field provides a hint to indicate a target navigable where a prerendered page will eventually be activated. For example, when _blank is specified as a hint, a prerendered page can be activated for a navigable opened by window.open(). The field has no effect on prefetching.\n\nThe specification allows this field to accept any strings that are valid as navigable target name or keyword as the value, but this launch supports only one of \"_self\" or \"_blank\" strings. If the hint is not specified, it's treated like \"_self\" is specified.",
+            "motivation": "In the Chromium implementation, we have accidentally created an architecture where it is hard to prerender a page without knowing what target window (or tab) it is going to be in. Currently we are always assuming that the prerender will be navigated to in the current window. The target_hint allows us to know a target window before starting prerendering.\n\nSee https://github.com/WICG/nav-speculation/issues/168 for details.",
+            "url": "https://chromestatus.com/feature/5162540351094784",
+            "bug-url": "https://issues.chromium.org/issues/40234240",
+            "spec-link": "https://wicg.github.io/nav-speculation/speculation-rules.html",
+            "explainer-links": [
+              "https://github.com/WICG/nav-speculation/blob/main/triggers.md#window-name-targeting-hints"
+            ],
+            "updated": {
+              "by": "foolip@google.com",
+              "when": "2025-08-22 08:32:16.640812"
+            }
+          },
+          {
+            "id": 5182859125456896,
+            "name": "Speculation rules: Content Security Policy extension",
+            "summary": "Speculation rules are inlined in script tags, but their use will be restricted by Content Security Policy as unsafe inline scripts even if the speculation rules are safe.\r\n\r\nSo, we extend the Content Security Policy to have a new source keyword, ‘inline-speculation-rules’, for inline uses of speculation rules. With this new keyword, we can permit inline speculation rules without permitting inline scripts.",
+            "motivation": null,
+            "url": "https://chromestatus.com/feature/5182859125456896",
+            "bug-url": null,
+            "spec-link": "https://wicg.github.io/nav-speculation/speculation-rules.html",
+            "explainer-links": [],
+            "updated": {
+              "by": "foolip@google.com",
+              "when": "2025-08-22 09:42:50.428907"
+            }
+          },
+          {
+            "id": 5091678266851328,
+            "name": "Speculation rules: eagerness field",
+            "summary": "To make the web user experience more instant, the user agent (UA) could pre-connect to the server, prefetch resources, or prerender them ahead of time. These actions are referred to as preloading actions. Since performing any preloading action may cause side effects (e.g. log the user out) and has an overhead (e.g. extra data/cpu usage), to perform the action the UA should know if the action is safe to perform and also if it is worth performing. \r\n\r\n\r\nBeing able to consistently determine which actions are safe for a given target without feedback from the developer is not an easy task. Speculation rules expose the necessary API to let developers specify that.\r\n\r\nAdding the eagerness field to the speculation rules will let the developers control how eagerly the browser preloads links in order to balance the performance advantage against resource overhead. This field accepts one of \"conservative\", \"moderate\" or \"eager\" strings as the value, and it is applicable to both \"prefetch\" and \"prerender\" actions and both \"list\" or \"document\" sources. If not explicitly specified, list rules default to \"eager\" and document rules default to \"conservative\".\r\n",
+            "motivation": null,
+            "url": "https://chromestatus.com/feature/5091678266851328",
+            "bug-url": "https://bugs.chromium.org/p/chromium/issues/detail?id=1406595",
+            "spec-link": null,
+            "explainer-links": [],
+            "updated": {
+              "by": "foolip@google.com",
+              "when": "2025-08-22 08:32:26.320957"
+            }
+          },
+          {
+            "id": 4694585584910336,
+            "name": "Speculation rules: referrer policy key",
+            "summary": "This extends the speculation rules [1] syntax to allow developers to specify the referrer policy to use with speculative requests triggered by speculation rules.\r\n\r\nThis also reintroduces the \"sufficiently-strict referrer policy\" requirement [2].\r\n\r\n[1] https://chromestatus.com/feature/5740655424831488\r\n[2] https://github.com/WICG/nav-speculation/blob/main/fetch.md#stripping-referrer-information",
+            "motivation": "By default, the referring document's referrer policy is used for the speculative request. The use of a \"referrer_policy\" key in speculation rules allows the referrer policy to be set explicitly. For speculation actions that would be prevented by the \"sufficiently-strict referrer policy\" requirement [2] on a referring page with a lax policy, this allows the referring page to set a stricter policy specifically for the speculative request.\r\n\r\nWe now reintroduce the enforcement of the sufficiently-strict referrer policy, as the referrer policy key introduces the necessary capability for sites to specify an acceptable policy.",
+            "url": "https://chromestatus.com/feature/4694585584910336",
+            "bug-url": "https://bugs.chromium.org/p/chromium/issues/detail?id=1355146",
+            "spec-link": "https://wicg.github.io/nav-speculation/speculation-rules.html",
+            "explainer-links": [
+              "https://github.com/WICG/nav-speculation/blob/main/triggers.md#explicit-referrer-policy"
+            ],
+            "updated": {
+              "by": "foolip@google.com",
+              "when": "2025-08-22 12:07:12.747883"
+            }
+          },
+          {
+            "id": 5112150536749056,
+            "name": "Speculation rules: document-sourced rules",
+            "summary": "An extension to speculation rules syntax that lets the browser obtain URLs for speculation from link elements in a page. They may include criteria which restrict which of these links can be used.",
+            "motivation": "Provides a more powerful and convenient mechanism for specifying URLs for pre-navigation speculation, instead of directly listing URLs. It takes into account current links in the document (which can dynamically change), and allows developers to specify pattern-based allow/deny lists, which is more convenient in scenarios where a page contains a large number of links or dynamic content, and it may not be convenient for the author to synchronize this information with a separate list.",
+            "url": "https://chromestatus.com/feature/5112150536749056",
+            "bug-url": "https://bugs.chromium.org/p/chromium/issues/detail?id=1371522",
+            "spec-link": "https://wicg.github.io/nav-speculation/speculation-rules.html",
+            "explainer-links": [
+              "https://github.com/WICG/nav-speculation/blob/main/triggers.md#document-rules"
+            ],
+            "updated": {
+              "by": "foolip@google.com",
+              "when": "2025-08-22 08:32:21.432861"
+            }
+          },
+          {
+            "id": 5069400512659456,
+            "name": "Speculation rules: delivery via Speculation-Rules header",
+            "summary": "Currently developers can only specify speculation rules using inline script tags.  The proposed feature provides an alternative through the \"Speculation-Rules\" header. Its value must be a URL to a text resource with \"application/speculationrules+json\" MIME type. The resource's rules will be added to the document's rule set.",
+            "motivation": "To adopt speculation rule based preloading, the current approach of using the script tag to specify speculation rules requires modifying existing documents, which is more difficult for some authors to deploy. The proposed Speculation-Rule header provides an alternative to facilitate adoption of the speculation rule based preloading.",
+            "url": "https://chromestatus.com/feature/5069400512659456",
+            "bug-url": "https://crbug.com/1366940",
+            "spec-link": null,
+            "explainer-links": [
+              "https://github.com/WICG/nav-speculation/blob/main/triggers.md#the-proposal"
+            ],
+            "updated": {
+              "by": "foolip@google.com",
+              "when": "2025-08-22 08:32:24.631937"
+            }
+          }
+        ],
         "bugs": {
           "firefox": [
             "https://bugzil.la/1969396",
             "https://bugzil.la/1969838"
+          ],
+          "chrome": [
+            "https://issues.chromium.org/issues/346555939",
+            "https://issues.chromium.org/issues/40170951",
+            "https://g-issues.chromium.org/issues/510022186",
+            "https://issues.chromium.org/u/1/issues/428500219",
+            "https://crbug.com/40287486",
+            "https://issues.chromium.org/issues/372053392",
+            "https://issues.chromium.org/issues/381687257",
+            "https://bugs.chromium.org/p/chromium/issues/detail?id=1517696",
+            "https://issues.chromium.org/issues/40234240",
+            "https://bugs.chromium.org/p/chromium/issues/detail?id=1406595",
+            "https://bugs.chromium.org/p/chromium/issues/detail?id=1355146",
+            "https://bugs.chromium.org/p/chromium/issues/detail?id=1371522",
+            "https://crbug.com/1366940"
           ],
           "firefox_android": [
             "https://bugzil.la/1969396",
@@ -849,7 +1204,7 @@
     "wpt": {
       "hasResults": true,
       "tests": 210,
-      "subtests": 484
+      "subtests": 243
     },
     "substantiveContributionsLastYear": 2
   },
@@ -1087,15 +1442,56 @@
           "votes": 14
         },
         "chrome-use-counters": {
-          "percentageOfPageLoad": 0.10812824,
+          "percentageOfPageLoad": 0.11636225,
           "url": "https://chromestatus.com/metrics/webfeature/timeline/popularity/118"
+        },
+        "chrome-status": [
+          {
+            "id": 6266249336586240,
+            "name": "scheduler.yield()",
+            "summary": "Provides a method for yielding control to the browser, which can be used to break up long tasks. Awaiting the promise returned by scheduler.yield() causes the current task to yield, continuing in a new browser task. This can be used to improve responsiveness issues caused by long tasks. Continuations are prioritized to mitigate performance problems of existing alternatives.",
+            "motivation": "Long tasks (JavaScript) can lead to poor responsiveness by blocking the main thread from handling inputs or delaying the resulting UI update. Developers can mitigate this by decreasing task lengths, either by doing less work or by breaking up long tasks.\r\n\r\nScheduling a continuation using current APIs typically has poor ergonomics because intuitively one wants to pause/resume the current task, not schedule a new task. It can also incur a performance penalty if arbitrary JavaScript runs between yield and continuation.\r\n\r\nscheduler.yield() is an ergonomic API for breaking up long tasks that mitigates performance issues of existing methods. Developers can await scheduler.yield() to break up long tasks, giving the UA an opportunity to run higher priority work, e.g. input. scheduler.yield() continuations are prioritized over tasks of the same priority or similar task sources, which helps mitigate the performance penalty of yielding.",
+            "url": "https://chromestatus.com/feature/6266249336586240",
+            "bug-url": "https://bugs.chromium.org/p/chromium/issues/detail?id=979020",
+            "spec-link": "https://wicg.github.io/scheduling-apis/#dom-scheduler-yield",
+            "explainer-links": [
+              "https://github.com/WICG/scheduling-apis/blob/main/explainers/yield-and-continuation.md",
+              "https://github.com/WICG/scheduling-apis/blob/main/explainers/prioritized-task-scheduling.md#scheduleryield"
+            ],
+            "updated": {
+              "by": "foolip@google.com",
+              "when": "2025-08-22 08:31:08.430584"
+            }
+          },
+          {
+            "id": 6031161734201344,
+            "name": "Scheduling APIs: Prioritized scheduler.postTask",
+            "summary": "Userspace tasks often have varying degrees of importance (related to user experience), but the Platform lacks a unified API to schedule prioritized work. The postTask API allows developers to schedule tasks (javascript callbacks) with a native browser scheduler at 3 levels of priority: user-blocking, user-visible, and background. It also exposes a TaskController, which can be used to dynamically cancel tasks and change their priority.",
+            "motivation": "It is too difficult to build web apps that are responsive to user interaction and remain responsive over time. Script is a primary culprit that hurts responsiveness (https://tdresser.github.io/input-latency-deep-reports/).\r\n\r\nConsider a \"search-as-you-type\" application: this app needs to be responsive to user input i.e. user typing in the search-box. At the same time any animations on the page must be rendered smoothly, as well as the work for fetching, preparing and displaying search results must progress quickly.\r\n\r\nScheduling can be an important tool for improving site performance and user experience. By breaking up long tasks into smaller tasks (or chunks), the page remains responsive if the app yields to the event loop between tasks. Running high priority work sooner can improve user experience by minimizing user-perceived latency of the associated interaction. Userspace schedulers exist for this purpose, and use priority to order execution of their tasks. But this priority has limited meaning since they do not control all tasks on the page.\r\n\r\nThe lack of a first-class scheduling API has disadvantages:\r\n - The browser is unaware of app priorities, limited how it can prioritize internally\r\n - There isn’t a coherent notion of priority across a page\r\n - The lack of a unified scheduling API is onerous on developers, making it even more complicated to write scheduling code\r\n - The primitives we do have don't support key features like dynamic prioritization",
+            "url": "https://chromestatus.com/feature/6031161734201344",
+            "bug-url": "https://bugs.chromium.org/p/chromium/issues/detail?id=979017",
+            "spec-link": "https://wicg.github.io/scheduling-apis/",
+            "explainer-links": [
+              "https://github.com/WICG/scheduling-apis/blob/main/explainers/prioritized-post-task.md"
+            ],
+            "updated": {
+              "by": "foolip@google.com",
+              "when": "2025-08-23 13:15:09.134519"
+            }
+          }
+        ],
+        "bugs": {
+          "chrome": [
+            "https://bugs.chromium.org/p/chromium/issues/detail?id=979020",
+            "https://bugs.chromium.org/p/chromium/issues/detail?id=979017"
+          ]
         }
       }
     ],
     "wpt": {
       "hasResults": true,
       "tests": 114,
-      "subtests": 500
+      "subtests": 307
     },
     "substantiveContributionsLastYear": 1
   }
